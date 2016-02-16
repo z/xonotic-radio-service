@@ -40,7 +40,7 @@ def main():
     music_file = bestaudio.download(cache_path)
 
     ogg_file = video.videoid + '.ogg'
-    pk3_file = video.videoid + '.pk3'
+    pk3_file = 'yt-' + video.videoid + '.pk3'
 
     # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
     with open(music_file, 'r') as f:
@@ -54,7 +54,7 @@ def main():
 
     # Write the meta info to the endpoint
     with open(endpoint_file, 'w') as f:
-        f.write(site_url + package_path + pk3_file + " " + str(duration) + " " + video.title)
+        f.write(site_url + pk3_file + " " + str(duration) + " " + video.title)
         f.close()
 
 if __name__ == "__main__":
