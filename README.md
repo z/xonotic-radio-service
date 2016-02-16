@@ -6,6 +6,13 @@
 avconv
 ```
 
+On Debian based systems avconv can be installed with the following:
+
+```
+sudo apt-get install libav-tools
+```
+
+
 #### Setup local packages
 
 Clone from git
