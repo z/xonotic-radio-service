@@ -1,0 +1,7 @@
+activate
+venv
+*.swp
+*.swo
+cache/**
+packages/*.pk3
+endpoint.txt
