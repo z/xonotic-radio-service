@@ -44,7 +44,7 @@ endpoint.txt output:
 
 
 ```
-http://example.com/radio/packages/dz24DgBUQbc.pk3 276 Vanic X K.Flay - Make Me Fade%
+http://example.com/radio/packages/dz24DgBUQbc.pk3 276 Vanic X K.Flay - Make Me Fade
 ```
 
 Your packages folder should contain a pk3 with an ogg file inside of it that matches the endpoint.txt
