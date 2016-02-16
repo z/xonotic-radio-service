@@ -19,7 +19,7 @@ sudo apt-get install ffmpeg
 Clone from git
 
 ```
-git clone ...
+git clone https://github.com/z/xonotic-radio-service.git
 ```
 
 Setup a venv and install the requirements
