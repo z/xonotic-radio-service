@@ -3,15 +3,7 @@
 #### System Requirements
 
 ```
-ffmpeg
-```
-
-Here's a PPA if you need it
-
-```
-sudo add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
-sudo apt-get update
-sudo apt-get install ffmpeg
+avconv
 ```
 
 #### Setup local packages

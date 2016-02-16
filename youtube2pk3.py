@@ -44,7 +44,8 @@ def main():
 
     # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
     with open(music_file, 'r') as f:
-        subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', cache_path + ogg_file])
+        #subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', cache_path + ogg_file])
+        subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', ogg_file])
 
     # Create a zip with the ogg inside of it
     with zipfile.ZipFile(package_path + pk3_file, 'w') as myzip:
