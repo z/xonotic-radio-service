@@ -62,7 +62,7 @@ Paths can be either absolute or relative. It would be good practice to have this
 
 ## Usage
 
-Make sure youtube2pk3.py is chmod +x, `chmod +x youtube2pk3.py`, then run it as follows:
+Make sure youtube2pk3.py is executable, `chmod +x youtube2pk3.py`, then run it as follows:
 
 
 ```bash
