@@ -16,6 +16,7 @@ def main():
 
     site_url = config['default']['site_url']
     endpoint_file = config['default']['endpoint_file']
+    endpoint_list_file = config['default']['endpoint_list_file']
     package_path = config['default']['package_path']
     cache_path = config['default']['cache_path']
     encoding_driver = config['default']['encoding_driver']
@@ -73,6 +74,12 @@ def main():
     with open(endpoint_file, 'w') as f:
         print('writing endpoint file...')
         f.write(site_url + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + video.title)
+        f.close()
+
+    # Write the meta info to the endpoint
+    with open(endpoint_list_file, 'a') as f:
+        print('writing to endpoint list file...')
+        f.write(site_url + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + video.title + '\n')
         f.close()
 
     print('done.')
