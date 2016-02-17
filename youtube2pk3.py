@@ -18,6 +18,7 @@ def main():
     endpoint_file = config['default']['endpoint_file']
     package_path = config['default']['package_path']
     cache_path = config['default']['cache_path']
+    encoding_driver = config['default']['encoding_driver']
 
     # Parse args
     parser = argparse.ArgumentParser()
@@ -47,25 +48,31 @@ def main():
     
     music_file = bestaudio.download(cache_path)
 
-    ogg_file = cache_path + video.videoid + '.ogg'
+    ogg_file = video.videoid + '.ogg'
     pk3_file = 'yt-' + video.videoid + '.pk3'
 
     # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
     with open(music_file, 'r') as f:
         print('converting to ogg...')
-        #subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', cache_path + ogg_file])
-        subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', ogg_file])
+
+        if encoding_driver == 'avconv':
+            subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', cache_path + ogg_file])
+        elif encoding_driver == 'ffmpeg':
+            subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', cache_path + ogg_file])
+        else:
+            print('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
+            return 1
 
     # Create a zip with the ogg inside of it
     with zipfile.ZipFile(package_path + pk3_file, 'w') as myzip:
         print('creating zip...')
-        myzip.write(ogg_file, os.path.basename(ogg_file))
+        myzip.write(cache_path + ogg_file, os.path.basename(ogg_file))
         myzip.close()
 
     # Write the meta info to the endpoint
     with open(endpoint_file, 'w') as f:
         print('writing endpoint file...')
-        f.write(site_url + pk3_file + " " + str(duration) + " " + video.title)
+        f.write(site_url + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + video.title)
         f.close()
 
     print('done.')
