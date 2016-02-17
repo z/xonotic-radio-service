@@ -17,13 +17,13 @@ sudo apt-get install libav-tools
 
 Clone from git
 
-```
+```bash
 git clone https://github.com/z/xonotic-radio-service.git
 ```
 
 Setup a venv and install the requirements
 
-```
+```bash
 virtualenv -p /usr/bin/python3 venv
 ln -s venv/bin/activate
 source activate
@@ -34,7 +34,9 @@ pip install -r requirements.txt
 
 Copy `example.config.ini` and edit `config.ini` to your server settings:
 
-`cp example.config.ini config.ini`
+```bash
+cp example.config.ini config.ini
+```
 
 The file should contain something similar to the following:
 
@@ -60,7 +62,7 @@ Paths can be either absolute or relative. It would be good practice to have this
 Make sure youtube2pk3.py is chmod +x, `chmod +x youtube2pk3.py`, then run it as follows:
 
 
-```
+```bash
 ./youtube2pk3.py "https://www.youtube.com/watch?v=dz24DgBUQbc"
 ```
 
