@@ -45,8 +45,14 @@ The file should contain something similar to the following:
 # URL for where the radio pk3s live
 site_url = http://example.com/radio/
 
+# write to endpoint file?
+use_endpoint_file = True
+
 # absolute or relative path to an endpoint file
 endpoint_file = /home/radio/web/html/endpoint.txt
+
+# write to endpoint list file?
+use_endpoint_list_file = True
 
 # absolute or relative path to an endpoint list file to be read by a script that choses a random line
 endpoint_list_file = /home/radio/web/html/endpoint_list.txt

@@ -3,32 +3,64 @@
 import argparse, configparser, zipfile, subprocess, os, pafy
 
 
+conf = {}
+
+
 def main():
 
-    # Config
-    if not os.path.isfile('config.ini'):
-        print('config.ini not found, please create one.')
+    global conf
+
+    conf = read_config('config.ini')
+    args = parse_args()
+
+    yt_info = get_audio_from_youtube(args.youtube_url)
+    
+    music_file = yt_info['music_file']
+    duration = yt_info['duration']
+    video = yt_info['video']
+    name = video.videoid
+    title = video.title
+
+    ogg_file = convert_to_ogg(music_file, name)
+
+    pk3_file = create_pk3(ogg_file, name)
+
+    if conf['use_endpoint_file'] == 'True':
+        write_to_endpoint(pk3_file, ogg_file, duration, title)
+
+    if conf['use_endpoint_list_file'] == 'True':
+        write_to_endpoint_list(pk3_file, ogg_file, duration, title)
+
+    print('done.')
+
+
+def read_config(config_file):
+
+    if not os.path.isfile(config_file):
+        print(config_file + ' not found, please create one.')
         return 1
 
     config = configparser.ConfigParser()
 
-    config.read('config.ini')
+    config.read(config_file)
 
-    site_url = config['default']['site_url']
-    endpoint_file = config['default']['endpoint_file']
-    endpoint_list_file = config['default']['endpoint_list_file']
-    package_path = config['default']['package_path']
-    cache_path = config['default']['cache_path']
-    encoding_driver = config['default']['encoding_driver']
+    return config['default']
 
-    # Parse args
+
+def parse_args():
+
     parser = argparse.ArgumentParser()
+
     parser.add_argument("youtube_url", help="A youtube video URL",
                         type=str)
-    args = parser.parse_args()
 
-    # Setup vars
-    youtube_url = args.youtube_url
+    return parser.parse_args()
+
+
+def get_audio_from_youtube(youtube_url):
+
+    global conf
+
     video = pafy.new(youtube_url)
     formatted_duration = video.duration
 
@@ -41,48 +73,74 @@ def main():
     print("duration: " + formatted_duration)
 
     print("Available audio streams:")
+
     audiostreams = video.audiostreams
+
     for a in audiostreams:
         print(a.bitrate, a.extension, a.get_filesize())
 
     bestaudio = video.getbestaudio()
     
-    music_file = bestaudio.download(cache_path)
+    music_file = bestaudio.download(conf['cache_path'])
 
-    ogg_file = video.videoid + '.ogg'
-    pk3_file = 'yt-' + video.videoid + '.pk3'
+    return { 'music_file': music_file, 'video': video, 'duration': duration }
+
+
+def convert_to_ogg(music_file, name):
+
+    global conf
+    
+    ogg_file = name + '.ogg'
 
     # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
     with open(music_file, 'r') as f:
         print('converting to ogg...')
 
-        if encoding_driver == 'avconv':
-            subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', cache_path + ogg_file])
-        elif encoding_driver == 'ffmpeg':
-            subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', cache_path + ogg_file])
+        if conf['encoding_driver'] == 'avconv':
+            subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', conf['cache_path'] + ogg_file])
+        elif conf['encoding_driver'] == 'ffmpeg':
+            subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', conf['cache_path'] + ogg_file])
         else:
             print('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
             return 1
 
+    return ogg_file
+
+
+def create_pk3(ogg_file, name):
+
+    global conf
+
+    pk3_file = 'yt-' + name + '.pk3'
+
     # Create a zip with the ogg inside of it
-    with zipfile.ZipFile(package_path + pk3_file, 'w') as myzip:
+    with zipfile.ZipFile(conf['package_path'] + pk3_file, 'w') as pk3:
         print('creating zip...')
-        myzip.write(cache_path + ogg_file, os.path.basename(ogg_file))
-        myzip.close()
+        pk3.write(conf['cache_path'] + ogg_file, os.path.basename(ogg_file))
+        pk3.close()
 
-    # Write the meta info to the endpoint
-    with open(endpoint_file, 'w') as f:
+        return pk3_file
+
+
+def write_to_endpoint(pk3_file, ogg_file, duration, title):
+
+    global conf
+
+    with open(conf['endpoint_file'], 'w') as f:
         print('writing endpoint file...')
-        f.write(site_url + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + video.title)
+        f.write(conf['site_url'] + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + title)
         f.close()
 
-    # Write the meta info to the endpoint
-    with open(endpoint_list_file, 'a') as f:
+
+def write_to_endpoint_list(pk3_file, ogg_file, duration, title):
+
+    global conf
+
+    with open(conf['endpoint_list_file'], 'a') as f:
         print('writing to endpoint list file...')
-        f.write(site_url + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + video.title + '\n')
+        f.write(conf['site_url'] + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + title + '\n')
         f.close()
 
-    print('done.')
 
 if __name__ == "__main__":
     main()
