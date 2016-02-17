@@ -5,3 +5,4 @@ venv
 cache/**
 packages/*.pk3
 endpoint.txt
+config.ini
