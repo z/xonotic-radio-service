@@ -65,6 +65,9 @@ cache_path = cache/
 
 # what to use to convert the audio format to ogg
 encoding_driver = avconv
+
+# what bitrate for the audio
+bitrate = 64k
 ```
 
 Paths can be either absolute or relative. It would be good practice to have this live in a non-web accessible, but allow it to write the packages to a web facing folder.

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # z@xnz.me
-import argparse, configparser, zipfile, subprocess, os, pafy
+import argparse
+import configparser
+import zipfile
+import subprocess
+import os
+import pafy
 
 
 conf = {}
@@ -32,29 +37,6 @@ def main():
         write_to_endpoint_list(pk3_file, ogg_file, duration, title)
 
     print('done.')
-
-
-def read_config(config_file):
-
-    if not os.path.isfile(config_file):
-        print(config_file + ' not found, please create one.')
-        return 1
-
-    config = configparser.ConfigParser()
-
-    config.read(config_file)
-
-    return config['default']
-
-
-def parse_args():
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("youtube_url", help="A youtube video URL",
-                        type=str)
-
-    return parser.parse_args()
 
 
 def get_audio_from_youtube(youtube_url):
@@ -97,9 +79,9 @@ def convert_to_ogg(music_file, name):
         print('converting to ogg...')
 
         if conf['encoding_driver'] == 'avconv':
-            subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-qscale:a', '5', conf['cache_path'] + ogg_file])
+            subprocess.call(['avconv', '-i', music_file, '-codec:a', 'libvorbis', '-b:a', conf['bitrate'], '-vn', conf['cache_path'] + ogg_file])
         elif conf['encoding_driver'] == 'ffmpeg':
-            subprocess.call(["ffmpeg", '-i', music_file, '-acodec', 'vorbis', '-strict', '-2', '-aq', '60', '-vn', '-ac', '2', conf['cache_path'] + ogg_file])
+            subprocess.call(["ffmpeg", '-i', music_file, '-codec:a', 'libvorbis', '-b:a', conf['bitrate'], '-vn', conf['cache_path'] + ogg_file])
         else:
             print('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
             return 1
@@ -140,6 +122,29 @@ def write_to_endpoint_list(pk3_file, ogg_file, duration, title):
         print('writing to endpoint list file...')
         f.write(conf['site_url'] + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + title + '\n')
         f.close()
+
+
+def read_config(config_file):
+
+    if not os.path.isfile(config_file):
+        print(config_file + ' not found, please create one.')
+        return 1
+
+    config = configparser.ConfigParser()
+
+    config.read(config_file)
+
+    return config['default']
+
+
+def parse_args():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("youtube_url", help="A youtube video URL",
+                        type=str)
+
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
