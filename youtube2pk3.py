@@ -15,7 +15,7 @@ def main():
 
     global conf
 
-    conf = read_config('config.ini')
+    conf = read_config('config/config.ini')
     args = parse_args()
 
     yt_info = get_audio_from_youtube(args.youtube_url)

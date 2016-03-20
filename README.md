@@ -35,7 +35,7 @@ pip install -r requirements.txt
 Copy `example.config.ini` and edit `config.ini` to your server settings:
 
 ```bash
-cp example.config.ini config.ini
+cp config/example.config.ini config/config.ini
 ```
 
 The file should contain something similar to the following:
