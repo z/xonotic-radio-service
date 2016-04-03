@@ -49,6 +49,9 @@ The file should contain something similar to the following:
 # URL for where the radio pk3s live
 site_url = http://example.com/radio/
 
+# Prefix for the generated pk3 file
+package_prefix = radio-
+
 # absolute or relative path to where the packages live
 package_path = packages/
 
@@ -92,17 +95,23 @@ Target an endpoint defined in config for a youtube video and give it a title:
 ./youtube2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc "[SMB] Excision and﻿ Datsik - Guess I Got My Swagger Back"
 ```
 
-If downloading an audio file from any site, you must specify a title
+If downloading an audio file from any site, you must specify a title:
 ```bash
 ./youtube2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix"
+```
+
+
+If using a local audio file, you must specify a title:
+```bash
+./youtube2pk3.py my_cool_song.mp3 "Super Mario Bros. Overworld Remix"
 ```
 
 endpoint_list.txt output:
 
 ```
-http://example.com/radio/yt-5wkC8vWbFm8.pk3 5wkC8vWbFm8.ogg 420 Mord Fustang - Lick The Rainbow [Electro House | Plasmapool]
-http://example.com/radio/yt-08c22c32-f9b9-11e5-a868-94de80b1b7df.pk3 08c22c32-f9b9-11e5-a868-94de80b1b7df.ogg 152.57 Nexuiz - Beast of Insanity
-http://example.com/radio/yt-dz24DgBUQbc.pk3 dz24DgBUQbc.ogg 276 Vanic X K.Flay - Make Me Fade
+http://example.com/radio/radio-5wkC8vWbFm8.pk3 5wkC8vWbFm8.ogg 420 Mord Fustang - Lick The Rainbow [Electro House | Plasmapool]
+http://example.com/radio/radio-08c22c32-f9b9-11e5-a868-94de80b1b7df.pk3 08c22c32-f9b9-11e5-a868-94de80b1b7df.ogg 152.57 Nexuiz - Beast of Insanity
+http://example.com/radio/radio-dz24DgBUQbc.pk3 dz24DgBUQbc.ogg 276 Vanic X K.Flay - Make Me Fade
 ```
 
 Your packages folder should contain a pk3 with an ogg file inside of it that matches a line in endpoint_list.txt

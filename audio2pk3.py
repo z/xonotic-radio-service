@@ -12,8 +12,7 @@ import time
 import uuid
 import urllib.request
 import mutagen
-
-
+from shutil import copyfile
 conf = {}
 endpoints = {}
 
@@ -34,10 +33,12 @@ def main():
     else:
         target = endpoints['default']
 
-    if re.match('http(s)://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', args.url):
-        yt_info = get_audio_from_youtube(args.url)
+    input_source = args.input_source
 
-        music_file = yt_info['music_file']
+    if re.match('^http(s)://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', input_source):
+        yt_info = get_audio_from_youtube(input_source)
+
+        output_music_file = yt_info['music_file']
         duration = yt_info['duration']
         video = yt_info['video']
         name = video.videoid
@@ -46,7 +47,6 @@ def main():
         else:
             title = video.title
     else:
-        url = args.url
 
         if not args.title:
             print('title is required as a second parameter')
@@ -54,14 +54,17 @@ def main():
         else:
             title = args.title
 
-        extension = str(os.path.splitext(url)[1])
+        extension = str(os.path.splitext(input_source)[1])
         name = str(uuid.uuid1())
-        dl_name = name + "_d"
-        music_file = conf['cache_path'] + dl_name + extension
+        local_name = name + "_d"
+        output_music_file = conf['cache_path'] + local_name + extension
 
-        urllib.request.urlretrieve(args.url, music_file, reporthook)
+        if re.match('^http(s)://.*', input_source):
+            urllib.request.urlretrieve(input_source, output_music_file, reporthook)
+        else:
+            copyfile(input_source, output_music_file)
 
-        element = mutagen.File(music_file)
+        element = mutagen.File(output_music_file)
 
         if element:
             duration = "{0:.2f}".format(element.info.length)
@@ -69,7 +72,7 @@ def main():
             print('Invalid audio file.')
             raise SystemExit
 
-    ogg_file = convert_to_ogg(music_file, name)
+    ogg_file = convert_to_ogg(output_music_file, name)
 
     pk3_file = create_pk3(ogg_file, name)
 
@@ -132,7 +135,7 @@ def create_pk3(ogg_file, name):
 
     global conf
 
-    pk3_file = 'yt-' + name + '.pk3'
+    pk3_file = conf['package_prefix'] + name + '.pk3'
 
     # Create a zip with the ogg inside of it
     with zipfile.ZipFile(conf['package_path'] + pk3_file, 'w') as pk3:
@@ -188,7 +191,7 @@ def parse_args():
 
     parser.add_argument("-t", nargs='?', help="target endpoint", type=str)
 
-    parser.add_argument("url", help="A URL of either a youtube video or an audio file", type=str)
+    parser.add_argument("input_source", help="A URL of a youtube video, a remote audio file or local a audio file", type=str)
     parser.add_argument('title', nargs='?', help='title for the audio file', type=str)
 
     return parser.parse_args()
