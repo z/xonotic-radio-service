@@ -1,6 +1,6 @@
 # xonotic-radio-service
 
-Given a youtube video URL, the audio will be transcoded to ogg, packaged as a pk3 and an endpoint generated.
+Given a youtube video URL or an audio file URL, the audio will be transcoded to ogg, packaged as a pk3 and an endpoint generated.
 
 ## Setup
 
@@ -73,14 +73,35 @@ Paths can be either absolute or relative. It would be good practice to have this
 Make sure youtube2pk3.py is executable, `chmod +x youtube2pk3.py`, then run it as follows:
 
 
+Minimal for a youtube video:
+
 ```bash
 ./youtube2pk3.py https://www.youtube.com/watch?v=dz24DgBUQbc
 ```
 
+
+Target an endpoint defined in config for a youtube video:
+
+```bash
+./youtube2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc
+```
+
+Target an endpoint defined in config for a youtube video and give it a title:
+
+```bash
+./youtube2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc "[SMB] Excision and﻿ Datsik - Guess I Got My Swagger Back"
+```
+
+If downloading an audio file from any site, you must specify a title
+```bash
+./youtube2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix"
+```
+
 endpoint_list.txt output:
 
-
 ```
+http://example.com/radio/yt-5wkC8vWbFm8.pk3 5wkC8vWbFm8.ogg 420 Mord Fustang - Lick The Rainbow [Electro House | Plasmapool]
+http://example.com/radio/yt-08c22c32-f9b9-11e5-a868-94de80b1b7df.pk3 08c22c32-f9b9-11e5-a868-94de80b1b7df.ogg 152.57 Nexuiz - Beast of Insanity
 http://example.com/radio/yt-dz24DgBUQbc.pk3 dz24DgBUQbc.ogg 276 Vanic X K.Flay - Make Me Fade
 ```
 
