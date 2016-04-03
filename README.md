@@ -73,37 +73,37 @@ Paths can be either absolute or relative. It would be good practice to have this
 
 ## Usage
 
-Make sure youtube2pk3.py is executable, `chmod +x youtube2pk3.py`, then run it as follows:
+Make sure audio2pk3.py is executable, `chmod +x audio2pk3.py`, then run it as follows:
 
 
 Minimal for a youtube video:
 
 ```bash
-./youtube2pk3.py https://www.youtube.com/watch?v=dz24DgBUQbc
+./audio2pk3.py https://www.youtube.com/watch?v=dz24DgBUQbc
 ```
 
 
 Target an endpoint defined in config for a youtube video:
 
 ```bash
-./youtube2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc
+./audio2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc
 ```
 
 Target an endpoint defined in config for a youtube video and give it a title:
 
 ```bash
-./youtube2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc "[SMB] Excision and﻿ Datsik - Guess I Got My Swagger Back"
+./audio2pk3.py -t minsta https://www.youtube.com/watch?v=dz24DgBUQbc "[SMB] Excision and﻿ Datsik - Guess I Got My Swagger Back"
 ```
 
 If downloading an audio file from any site, you must specify a title:
 ```bash
-./youtube2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix"
+./audio2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix"
 ```
 
 
 If using a local audio file, you must specify a title:
 ```bash
-./youtube2pk3.py my_cool_song.mp3 "Super Mario Bros. Overworld Remix"
+./audio2pk3.py my_cool_song.mp3 "Super Mario Bros. Overworld Remix"
 ```
 
 endpoint_list.txt output:
