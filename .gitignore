@@ -5,6 +5,5 @@ venv
 *.swo
 cache/**
 packages/*.pk3
-endpoint.txt
-endpoint_list.txt
+web/*.txt
 config.ini

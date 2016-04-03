@@ -1,3 +1,7 @@
+# xonotic-radio-service
+
+Given a youtube video URL, the audio will be transcoded to ogg, packaged as a pk3 and an endpoint generated.
+
 ## Setup
 
 #### System Requirements
@@ -45,20 +49,8 @@ The file should contain something similar to the following:
 # URL for where the radio pk3s live
 site_url = http://example.com/radio/
 
-# write to endpoint file?
-use_endpoint_file = True
-
-# absolute or relative path to an endpoint file
-endpoint_file = /home/radio/web/html/endpoint.txt
-
-# write to endpoint list file?
-use_endpoint_list_file = True
-
-# absolute or relative path to an endpoint list file to be read by a script that choses a random line
-endpoint_list_file = /home/radio/web/html/endpoint_list.txt
-
 # absolute or relative path to where the packages live
-package_path = /home/radio/web/html/radio/
+package_path = packages/
 
 # absolute or relative path for cached media files
 cache_path = cache/
@@ -68,6 +60,10 @@ encoding_driver = avconv
 
 # what bitrate for the audio
 bitrate = 64k
+
+[endpoints]
+default = web/default_list.txt
+minsta = web/minsta_list.txt
 ```
 
 Paths can be either absolute or relative. It would be good practice to have this live in a non-web accessible, but allow it to write the packages to a web facing folder.
@@ -78,16 +74,16 @@ Make sure youtube2pk3.py is executable, `chmod +x youtube2pk3.py`, then run it a
 
 
 ```bash
-./youtube2pk3.py "https://www.youtube.com/watch?v=dz24DgBUQbc"
+./youtube2pk3.py https://www.youtube.com/watch?v=dz24DgBUQbc
 ```
 
-endpoint.txt output:
+endpoint_list.txt output:
 
 
 ```
 http://example.com/radio/yt-dz24DgBUQbc.pk3 dz24DgBUQbc.ogg 276 Vanic X K.Flay - Make Me Fade
 ```
 
-Your packages folder should contain a pk3 with an ogg file inside of it that matches the endpoint.txt
+Your packages folder should contain a pk3 with an ogg file inside of it that matches a line in endpoint_list.txt
 
-endpoint.txt will be *static* output, it will only change when the script is written. If you'd like to show a random line from a list whenever a request to the endpoint is made, see `endpoint.php` as an example.
+To show a random line from a list whenever a request to the endpoint is made, see `endpoint.php` as an example.

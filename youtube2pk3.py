@@ -15,14 +15,24 @@ import mutagen
 
 
 conf = {}
+endpoints = {}
 
 
 def main():
 
     global conf
 
-    conf = read_config('config/config.ini')
+    conf, endpoints = read_config('config/config.ini')
     args = parse_args()
+
+    if args.t:
+        if args.t in endpoints:
+            target = endpoints[args.t]
+        else:
+            print('target doesn\'t exist')
+            raise SystemExit
+    else:
+        target = endpoints['default']
 
     if re.match('http(s)://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', args.url):
         yt_info = get_audio_from_youtube(args.url)
@@ -63,11 +73,7 @@ def main():
 
     pk3_file = create_pk3(ogg_file, name)
 
-    if conf['use_endpoint_file'] == 'True':
-        write_to_endpoint(pk3_file, ogg_file, duration, title)
-
-    if conf['use_endpoint_list_file'] == 'True':
-        write_to_endpoint_list(pk3_file, ogg_file, duration, title)
+    write_to_endpoint_list(target, pk3_file, ogg_file, duration, title)
 
     print('done.')
 
@@ -137,21 +143,11 @@ def create_pk3(ogg_file, name):
         return pk3_file
 
 
-def write_to_endpoint(pk3_file, ogg_file, duration, title):
+def write_to_endpoint_list(target, pk3_file, ogg_file, duration, title):
 
     global conf
 
-    with open(conf['endpoint_file'], 'w') as f:
-        print('writing endpoint file...')
-        f.write(conf['site_url'] + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + title)
-        f.close()
-
-
-def write_to_endpoint_list(pk3_file, ogg_file, duration, title):
-
-    global conf
-
-    with open(conf['endpoint_list_file'], 'a') as f:
+    with open(target, 'a') as f:
         print('writing to endpoint list file...')
         f.write(conf['site_url'] + pk3_file + ' ' + ogg_file + ' ' + str(duration) + ' ' + title + '\n')
         f.close()
@@ -183,15 +179,16 @@ def read_config(config_file):
 
     config.read(config_file)
 
-    return config['default']
+    return config['default'], config['endpoints']
 
 
 def parse_args():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("url", help="A URL of either a youtube video or an audio file",
-                        type=str)
+    parser.add_argument("-t", nargs='?', help="target endpoint", type=str)
+
+    parser.add_argument("url", help="A URL of either a youtube video or an audio file", type=str)
     parser.add_argument('title', nargs='?', help='title for the audio file', type=str)
 
     return parser.parse_args()
