@@ -5,7 +5,13 @@ import configparser
 import zipfile
 import subprocess
 import os
+import re
 import pafy
+import sys
+import time
+import uuid
+import urllib.request
+import mutagen
 
 
 conf = {}
@@ -18,13 +24,40 @@ def main():
     conf = read_config('config/config.ini')
     args = parse_args()
 
-    yt_info = get_audio_from_youtube(args.youtube_url)
-    
-    music_file = yt_info['music_file']
-    duration = yt_info['duration']
-    video = yt_info['video']
-    name = video.videoid
-    title = video.title
+    if re.match('http(s)://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', args.url):
+        yt_info = get_audio_from_youtube(args.url)
+
+        music_file = yt_info['music_file']
+        duration = yt_info['duration']
+        video = yt_info['video']
+        name = video.videoid
+        if args.title:
+            title = args.title
+        else:
+            title = video.title
+    else:
+        url = args.url
+
+        if not args.title:
+            print('title is required as a second parameter')
+            raise SystemExit
+        else:
+            title = args.title
+
+        extension = str(os.path.splitext(url)[1])
+        name = str(uuid.uuid1())
+        dl_name = name + "_d"
+        music_file = conf['cache_path'] + dl_name + extension
+
+        urllib.request.urlretrieve(args.url, music_file, reporthook)
+
+        element = mutagen.File(music_file)
+
+        if element:
+            duration = "{0:.2f}".format(element.info.length)
+        else:
+            print('Invalid audio file.')
+            raise SystemExit
 
     ogg_file = convert_to_ogg(music_file, name)
 
@@ -46,7 +79,7 @@ def get_audio_from_youtube(youtube_url):
     video = pafy.new(youtube_url)
     formatted_duration = video.duration
 
-    ftr = [3600,60,1]
+    ftr = [3600, 60, 1]
 
     duration = sum([a*b for a,b in zip(ftr, map(int,formatted_duration.split(':')))])
 
@@ -65,13 +98,13 @@ def get_audio_from_youtube(youtube_url):
     
     music_file = bestaudio.download(conf['cache_path'])
 
-    return { 'music_file': music_file, 'video': video, 'duration': duration }
+    return {'music_file': music_file, 'video': video, 'duration': duration}
 
 
 def convert_to_ogg(music_file, name):
 
     global conf
-    
+
     ogg_file = name + '.ogg'
 
     # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
@@ -124,6 +157,22 @@ def write_to_endpoint_list(pk3_file, ogg_file, duration, title):
         f.close()
 
 
+def reporthook(count, block_size, total_size):
+
+    global start_time
+
+    if count == 0:
+        start_time = time.time()
+        return
+    duration = time.time() - start_time
+    progress_size = int(count * block_size)
+    speed = int(progress_size / (1024 * duration))
+    percent = int(count * block_size * 100 / total_size)
+    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed. " %
+                    (percent, progress_size / (1024 * 1024), speed, duration))
+    sys.stdout.flush()
+
+
 def read_config(config_file):
 
     if not os.path.isfile(config_file):
@@ -141,12 +190,12 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("youtube_url", help="A youtube video URL",
+    parser.add_argument("url", help="A URL of either a youtube video or an audio file",
                         type=str)
+    parser.add_argument('title', nargs='?', help='title for the audio file', type=str)
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     main()
-
