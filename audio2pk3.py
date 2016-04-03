@@ -13,6 +13,8 @@ import uuid
 import urllib.request
 import mutagen
 from shutil import copyfile
+
+
 conf = {}
 endpoints = {}
 
@@ -35,7 +37,7 @@ def main():
 
     input_source = args.input_source
 
-    if re.match('^http(s)://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', input_source):
+    if re.match('^http(s)?://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', input_source):
         yt_info = get_audio_from_youtube(input_source)
 
         output_music_file = yt_info['music_file']
@@ -59,7 +61,7 @@ def main():
         local_name = name + "_d"
         output_music_file = conf['cache_path'] + local_name + extension
 
-        if re.match('^http(s)://.*', input_source):
+        if re.match('^http(s)?://.*', input_source):
             urllib.request.urlretrieve(input_source, output_music_file, reporthook)
         else:
             copyfile(input_source, output_music_file)
