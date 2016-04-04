@@ -26,9 +26,9 @@ def main():
     conf, endpoints = read_config('config/config.ini')
     args = parse_args()
 
-    if args.t:
-        if args.t in endpoints:
-            target = endpoints[args.t]
+    if args.target:
+        if args.target in endpoints:
+            target = endpoints[args.target]
         else:
             print('target doesn\'t exist')
             raise SystemExit
@@ -128,7 +128,7 @@ def convert_to_ogg(music_file, name):
             subprocess.call(["ffmpeg", '-i', music_file, '-codec:a', 'libvorbis', '-b:a', conf['bitrate'], '-vn', conf['cache_path'] + ogg_file])
         else:
             print('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
-            return 1
+            raise SystemExit
 
     return ogg_file
 
@@ -178,7 +178,7 @@ def read_config(config_file):
 
     if not os.path.isfile(config_file):
         print(config_file + ' not found, please create one.')
-        return 1
+        raise SystemExit
 
     config = configparser.ConfigParser()
 
@@ -191,7 +191,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-t", nargs='?', help="target endpoint", type=str)
+    parser.add_argument('--target', '-t', nargs='?', help="target endpoint defined under [endpoints] in config", type=str)
 
     parser.add_argument("input_source", help="A URL of a youtube video, a remote audio file or local a audio file", type=str)
     parser.add_argument('title', nargs='?', help='title for the audio file', type=str)
