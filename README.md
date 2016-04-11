@@ -44,7 +44,7 @@ cp config/example.config.ini config/config.ini
 
 The file should contain something similar to the following:
 
-```
+```ini
 [default]
 # URL for where the radio pk3s live
 site_url = http://example.com/radio/
