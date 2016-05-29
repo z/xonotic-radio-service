@@ -59,9 +59,12 @@ def main():
 
 
 class Track(object):
-    """A rainbow object that can be applied to a string"""
+    """
+    A radio track object that can be initialized with a youtube url, an audio http link or a local audio file.
+    Methods for creating and ogg file, packaging the track as a pk3 and adding it to an endpoint list are also included.
+    """
 
-    def __init__(self, pk3_file=None, youtube_url=None, source_url=None, source_file=None, title=None):
+    def __init__(self, youtube_url=None, source_url=None, source_file=None, title=None):
 
         if not youtube_url and title is None:
             raise SystemExit('title required for url or local files')
