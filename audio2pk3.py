@@ -26,8 +26,7 @@ def main():
         if args.target in endpoints:
             target = endpoints[args.target]
         else:
-            print('target doesn\'t exist')
-            raise SystemExit
+            raise SystemExit('target doesn\'t exist')
     else:
         target = endpoints['default']
 
@@ -38,8 +37,8 @@ def main():
     else:
 
         if not args.title:
-            print('title is required as a second parameter')
-            raise SystemExit
+            raise SystemExit('title is required as a second parameter')
+
         else:
             title = args.title
 
@@ -63,7 +62,7 @@ class Track(object):
     def __init__(self, pk3_file=None, youtube_url=None, source_url=None, source_file=None, title=None):
 
         if not youtube_url and title is None:
-            raise RuntimeError('title required for url or local files')
+            raise SystemExit('title required for url or local files')
 
         self.local_file = None
         self.duration = None
@@ -80,7 +79,7 @@ class Track(object):
         elif source_file:
             self.copy_track(source_file)
         else:
-            raise RuntimeError('youtube_url, source_url or source_file is required!')
+            raise SystemExit('youtube_url, source_url or source_file is required!')
 
         if title:
             self.title = title
@@ -88,7 +87,7 @@ class Track(object):
     def get_audio_from_youtube(self, youtube_url):
 
         if not re.match('^http(s)?://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', youtube_url):
-            raise RuntimeError('URL for youtube did not match pattern.')
+            raise SystemExit('URL for youtube did not match pattern.')
 
         video = pafy.new(youtube_url)
         formatted_duration = video.duration
@@ -172,8 +171,7 @@ class Track(object):
                      '-vn',
                      conf['cache_path'] + ogg_file])
             else:
-                print('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
-                raise SystemExit
+                raise SystemExit('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
 
         self.ogg_file = ogg_file
 
@@ -208,7 +206,7 @@ class Track(object):
         if element:
             duration = "{0:.2f}".format(element.info.length)
         else:
-            raise RuntimeError('Invalid audio file.')
+            raise SystemExit('Invalid audio file.')
 
         return duration
 
@@ -232,8 +230,7 @@ def reporthook(count, block_size, total_size):
 def read_config(config_file):
 
     if not os.path.isfile(config_file):
-        print(config_file + ' not found, please create one.')
-        raise SystemExit
+        raise SystemExit(config_file + ' not found, please create one.')
 
     config = configparser.ConfigParser()
 
