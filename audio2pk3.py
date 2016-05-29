@@ -12,14 +12,6 @@ def main():
     conf, endpoints = read_config('config/config.ini')
     args = parse_args()
 
-    if args.target:
-        if args.target in endpoints:
-            target = endpoints[args.target]
-        else:
-            raise SystemExit('target doesn\'t exist')
-    else:
-        target = endpoints['default']
-
     input_source = args.input_source
 
     if re.match('^http(s)?://(www\.|m\.)?(youtube\.com|youtu\.be)/.*', input_source):
@@ -35,6 +27,14 @@ def main():
             track = Track(source_url=input_source, title=title)
         else:
             track = Track(source_file=input_source, title=title)
+
+    if args.target:
+        if args.target in endpoints:
+            target = endpoints[args.target]
+        else:
+            raise SystemExit('target doesn\'t exist')
+    else:
+        target = endpoints['default']
 
     if args.name:
         name = args.name
