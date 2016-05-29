@@ -38,7 +38,6 @@ def main():
 
         if not args.title:
             raise SystemExit('title is required as a second parameter')
-
         else:
             title = args.title
 
@@ -47,7 +46,10 @@ def main():
         else:
             track = Track(source_file=input_source, title=title)
 
-    name = str(uuid.uuid1())
+    if args.name:
+        name = args.name
+    else:
+        name = str(uuid.uuid1())
 
     track.convert_to_ogg(name)
     track.create_pk3(name)
@@ -244,6 +246,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--target', '-t', nargs='?', help="target endpoint defined under [endpoints] in config", type=str)
+    parser.add_argument('--name', '-n', nargs='?', help="name your download", type=str)
 
     parser.add_argument("input_source", help="A URL of a youtube video, a remote audio file or local a audio file", type=str)
     parser.add_argument('title', nargs='?', help='title for the audio file', type=str)
