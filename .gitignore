@@ -7,3 +7,4 @@ cache/**
 packages/*.pk3
 web/*.txt
 config.ini
+*__pycache__
