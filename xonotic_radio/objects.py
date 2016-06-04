@@ -23,15 +23,19 @@ class Track(object):
         if not youtube_url and title is None:
             raise SystemExit('title required for url or local files')
 
-        self.local_file = None
-        self.duration = None
-        self.ogg_file = None
-        self.pk3_file = None
+        # Sources
         self.youtube_url = youtube_url
         self.source_url = source_url
         self.source_file = source_file
 
+        # Artifacts
+        self.local_file = None
+        self.duration = None
+        self.ogg_file = None
+        self.pk3_file = None
+
         if youtube_url:
+            self.print_youtube_information(youtube_url)
             self.get_audio_from_youtube(youtube_url)
         elif source_url:
             self.download_track(source_url)
@@ -55,17 +59,6 @@ class Track(object):
 
         duration = sum([a * b for a, b in zip(ftr, map(int, formatted_duration.split(':')))])
 
-        print("processing: " + youtube_url)
-        print("title: " + video.title)
-        print("duration: " + formatted_duration)
-
-        print("Available audio streams:")
-
-        audio_streams = video.audiostreams
-
-        for a in audio_streams:
-            print(a.bitrate, a.extension, a.get_filesize())
-
         best_audio = video.getbestaudio()
 
         music_file = best_audio.download(conf['cache_path'])
@@ -79,7 +72,26 @@ class Track(object):
 
         return audio_info
 
+    @staticmethod
+    def print_youtube_information(youtube_url):
+
+        video = pafy.new(youtube_url)
+
+        print("processing: " + youtube_url)
+        print("title: " + video.title)
+        print("duration: " + video.duration)
+
+        print("Available audio streams:")
+
+        audio_streams = video.audiostreams
+
+        for a in audio_streams:
+            print(a.bitrate, a.extension, a.get_filesize())
+
     def download_track(self, source_url):
+
+        if not re.match('^http(s)?://.*', source_url):
+            raise SystemExit('URL did not match pattern (http(s):// only).')
 
         extension = str(os.path.splitext(source_url)[1])
         name = str(uuid.uuid1())
@@ -121,16 +133,19 @@ class Track(object):
         ogg_file = name + '.ogg'
 
         # Convert whatever (hopefully m4a) to ogg -- this part is the most likely to break
-        with open(self.local_file, 'r') as f:
-            print('converting to ogg...')
+        try:
+            with open(self.local_file, 'r') as f:
+                print('converting to ogg...')
 
-            if conf['encoding_driver'] == 'avconv' or conf['encoding_driver'] == 'ffmpeg':
-                subprocess.call(
-                    [conf['encoding_driver'], '-i', self.local_file, '-codec:a', 'libvorbis', '-b:a', conf['bitrate'],
-                     '-vn',
-                     conf['cache_path'] + ogg_file])
-            else:
-                raise SystemExit('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
+                if conf['encoding_driver'] == 'avconv' or conf['encoding_driver'] == 'ffmpeg':
+                    subprocess.call(
+                        [conf['encoding_driver'], '-i', self.local_file, '-codec:a', 'libvorbis', '-b:a', conf['bitrate'],
+                         '-vn',
+                         conf['cache_path'] + ogg_file])
+                else:
+                    raise SystemExit('/!\ No valid driver was chosen, please configure either avconv or ffmpeg. Exiting...')
+        except EnvironmentError:
+            return False
 
         self.ogg_file = ogg_file
 
@@ -141,21 +156,27 @@ class Track(object):
         pk3_file = conf['package_prefix'] + name + '.pk3'
 
         # Create a zip with the ogg inside of it
-        with zipfile.ZipFile(conf['package_path'] + pk3_file, 'w') as pk3:
-            print('creating zip...')
-            pk3.write(conf['cache_path'] + self.ogg_file, os.path.basename(self.ogg_file))
-            pk3.close()
+        try:
+            with zipfile.ZipFile(conf['package_path'] + pk3_file, 'w') as pk3:
+                print('creating zip...')
+                pk3.write(conf['cache_path'] + self.ogg_file, os.path.basename(self.ogg_file))
+                pk3.close()
+        except EnvironmentError:
+            return False
 
-            self.pk3_file = pk3_file
+        self.pk3_file = pk3_file
 
-            return pk3_file
+        return pk3_file
 
     def write_to_endpoint_list(self, target):
 
-        with open(target, 'a') as f:
-            print('writing to endpoint list file...')
-            f.write(conf['site_url'] + self.pk3_file + ' ' + self.ogg_file + ' ' + str(self.duration) + ' ' + self.title + '\n')
-            f.close()
+        try:
+            with open(target, 'a') as f:
+                print('writing to endpoint list file...')
+                f.write(conf['site_url'] + self.pk3_file + ' ' + self.ogg_file + ' ' + str(self.duration) + ' ' + self.title + '\n')
+                f.close()
+        except EnvironmentError:
+            return False
 
     @staticmethod
     def get_duration(local_file):
@@ -168,4 +189,3 @@ class Track(object):
             raise SystemExit('Invalid audio file.')
 
         return duration
-
