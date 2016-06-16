@@ -100,6 +100,10 @@ If downloading an audio file from any site, you must specify a title:
 ./audio2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix"
 ```
 
+A name for the package can also be specified to make it easier to find later (don't use spaces).
+```bash
+./audio2pk3.py https://dl.dropboxusercontent.com/u/xxxxxxxx/land.ogg "Super Mario Bros. Overworld Remix" --name "smb-overworld-remix-land"
+```
 
 If using a local audio file, you must specify a title:
 ```bash
