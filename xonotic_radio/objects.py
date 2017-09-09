@@ -34,6 +34,9 @@ class Track(object):
         self.ogg_file = None
         self.pk3_file = None
 
+        # License
+        self.license = None
+
         if youtube_url:
             self.print_youtube_information(youtube_url)
             self.get_audio_from_youtube(youtube_url)
@@ -64,6 +67,12 @@ class Track(object):
         music_file = best_audio.download(conf['cache_path'])
 
         audio_info = {'local_file': music_file, 'video': video, 'duration': duration, 'title': video.title}
+
+        # Work around to get license information until https://github.com/mps-youtube/pafy/issues/182
+        process = subprocess.Popen(['youtube-dl', '--get-filename', '-o', '%(license)s', youtube_url], stdout=subprocess.PIPE)
+        out, err = process.communicate()
+        if out:
+            self.license = out.decode("utf-8").strip()
 
         self.youtube_url = youtube_url
         self.local_file = audio_info['local_file']
@@ -155,11 +164,23 @@ class Track(object):
 
         pk3_file = conf['package_prefix'] + name + '.pk3'
 
+        # Write a LICENSE file
+        try:
+            with open(conf['cache_path'] + self.ogg_file + "_LICENSE", 'w') as f:
+                f.write(str(self.license))
+                f.close()
+        except EnvironmentError:
+            return False
+
         # Create a zip with the ogg inside of it
         try:
             with zipfile.ZipFile(conf['package_path'] + pk3_file, 'w') as pk3:
                 print('creating zip...')
                 pk3.write(conf['cache_path'] + self.ogg_file, os.path.basename(self.ogg_file))
+                if self.license:
+                    pk3.write(conf['cache_path'] + self.ogg_file + "_LICENSE", 'LICENSE')
+                else:
+                    pk3.write(conf['cache_path'] + self.ogg_file + "_LICENSE", 'LICENSE_UNKNOWN')
                 pk3.close()
         except EnvironmentError:
             return False
