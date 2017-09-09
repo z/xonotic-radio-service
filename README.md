@@ -31,7 +31,7 @@ Setup a venv and install the requirements
 virtualenv -p /usr/bin/python3 venv
 ln -s venv/bin/activate
 source activate
-pip install -r requirements.txt
+pip install -r requirements.in
 ```
 
 ## Configuration
