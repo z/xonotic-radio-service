@@ -4,7 +4,7 @@ import argparse
 import re
 import uuid
 from xonotic_radio.objects import Track
-from xonotic_radio.util import *
+from xonotic_radio.util import read_config
 
 
 def main():
